@@ -9,15 +9,15 @@ import (
 
 type WebServer struct {
 	Router        chi.Router
-	Handlers      map[string]http.Handler
+	Handlers      map[string]http.HandlerFunc
 	WebServerPort string
 }
 
-func NewWebServer(WebServerPort string) *WebServer {
+func NewWebServer(webServerPort string) *WebServer {
 	return &WebServer{
-		WebServerPort: WebServerPort,
+		WebServerPort: webServerPort,
 		Router:        chi.NewRouter(),
-		Handlers:      make(map[string]http.Handler),
+		Handlers:      make(map[string]http.HandlerFunc),
 	}
 }
 

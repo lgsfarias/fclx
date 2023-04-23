@@ -15,7 +15,7 @@ type ChatRepositoryMySQL struct {
 	Queries *db.Queries
 }
 
-func NewChatRepositoryMySQL(dbt *sql.DB, queries *db.Queries) *ChatRepositoryMySQL {
+func NewChatRepositoryMySQL(dbt *sql.DB) *ChatRepositoryMySQL {
 	return &ChatRepositoryMySQL{
 		DB:      dbt,
 		Queries: db.New(dbt),
@@ -28,7 +28,7 @@ func (r *ChatRepositoryMySQL) CreateChat(ctx context.Context, chat *entity.Chat)
 		db.CreateChatParams{
 			ID:               chat.ID,
 			UserID:           chat.UserID,
-			InitialMessageID: chat.InitialSystemMessage.ID,
+			InitialMessageID: chat.InitialSystemMessage.Content,
 			Status:           chat.Status,
 			TokenUsage:       int32(chat.TokenUsage),
 			Model:            chat.Config.Model.Name,
@@ -56,7 +56,7 @@ func (r *ChatRepositoryMySQL) CreateChat(ctx context.Context, chat *entity.Chat)
 			Content:   chat.InitialSystemMessage.Content,
 			Role:      chat.InitialSystemMessage.Role,
 			Tokens:    int32(chat.InitialSystemMessage.Tokens),
-			CreatedAt: time.Now(),
+			CreatedAt: chat.InitialSystemMessage.CreatedAt,
 		},
 	)
 	if err != nil {
@@ -64,7 +64,6 @@ func (r *ChatRepositoryMySQL) CreateChat(ctx context.Context, chat *entity.Chat)
 	}
 
 	return nil
-
 }
 
 func (r *ChatRepositoryMySQL) FindChatByID(ctx context.Context, chatID string) (*entity.Chat, error) {
@@ -93,33 +92,34 @@ func (r *ChatRepositoryMySQL) FindChatByID(ctx context.Context, chatID string) (
 
 	messages, err := r.Queries.FindMessagesByChatID(ctx, chatID)
 	if err != nil {
-		return nil, errors.New("messages not found")
+		return nil, err
 	}
-	for _, m := range messages {
+
+	for _, message := range messages {
 		chat.Messages = append(chat.Messages, &entity.Message{
-			ID:        m.ID,
-			Content:   m.Content,
-			Role:      m.Role,
-			Tokens:    int(m.Tokens),
-			Model:     &entity.Model{Name: m.Model},
-			CreatedAt: m.CreatedAt})
+			ID:        message.ID,
+			Content:   message.Content,
+			Role:      message.Role,
+			Tokens:    int(message.Tokens),
+			Model:     &entity.Model{Name: message.Model},
+			CreatedAt: message.CreatedAt,
+		})
 	}
 
 	erasedMessages, err := r.Queries.FindErasedMessagesByChatID(ctx, chatID)
 	if err != nil {
-		return nil, errors.New("erased messages not found")
+		return nil, err
 	}
-
-	for _, m := range erasedMessages {
+	for _, message := range erasedMessages {
 		chat.ErasedMessages = append(chat.ErasedMessages, &entity.Message{
-			ID:        m.ID,
-			Content:   m.Content,
-			Role:      m.Role,
-			Tokens:    int(m.Tokens),
-			Model:     &entity.Model{Name: m.Model},
-			CreatedAt: m.CreatedAt})
+			ID:        message.ID,
+			Content:   message.Content,
+			Role:      message.Role,
+			Tokens:    int(message.Tokens),
+			Model:     &entity.Model{Name: message.Model},
+			CreatedAt: message.CreatedAt,
+		})
 	}
-
 	return chat, nil
 }
 

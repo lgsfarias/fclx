@@ -12,16 +12,16 @@ import (
 )
 
 type ChatCompletionConfigInputDTO struct {
-	Model            string   `json:"model"`
-	ModelMaxTokens   int      `json:"model_max_tokens"`
-	Temperature      float32  `json:"temperature"`
-	TopP             float32  `json:"top_p"`
-	N                int      `json:"n"`
-	Stop             []string `json:"stop"`
-	MaxTokens        int      `json:"max_tokens"`
-	PresencePenalty  float32  `json:"presence_penalty"`
-	FrequencyPenalty float32  `json:"frequency_penalty"`
-	InitialSystemMsg string   `json:"initial_system_msg"`
+	Model                string   `json:"model"`
+	ModelMaxTokens       int      `json:"model_max_tokens"`
+	Temperature          float32  `json:"temperature"`
+	TopP                 float32  `json:"top_p"`
+	N                    int      `json:"n"`
+	Stop                 []string `json:"stop"`
+	MaxTokens            int      `json:"max_tokens"`
+	PresencePenalty      float32  `json:"presence_penalty"`
+	FrequencyPenalty     float32  `json:"frequency_penalty"`
+	InitialSystemMessage string   `json:"initial_system_msg"`
 }
 
 type ChatCompletionInputDTO struct {
@@ -156,7 +156,7 @@ func CreateNewChat(input ChatCompletionInputDTO) (*entity.Chat, error) {
 		PresencePenalty:  input.Config.PresencePenalty,
 		FrequencyPenalty: input.Config.FrequencyPenalty,
 	}
-	initialMessage, err := entity.NewMessage("system", input.Config.InitialSystemMsg, model)
+	initialMessage, err := entity.NewMessage("system", input.Config.InitialSystemMessage, model)
 	if err != nil {
 		return nil, errors.New("Error creating initial message: " + err.Error())
 	}
